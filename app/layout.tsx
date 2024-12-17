@@ -20,10 +20,10 @@ const GeistMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AriaDocs - Template",
-  metadataBase: new URL("https://ariadocs.vercel.app/"),
+  title: "Dagrs - An easy-to-use, high-performance asynchronous task programming framework",
+  metadataBase: new URL("https://github.com/dagrs-dev/dagrs/"),
   description:
-    "This comprehensive documentation template, crafted with Next.js and available as open-source, delivers a sleek and responsive design, tailored to meet all your project documentation requirements.",
+    "Dagrs follows the concept of Flow-based Programming and is suitable for the execution of multiple tasks with graph-like dependencies.",
 };
 
 export default function RootLayout({
