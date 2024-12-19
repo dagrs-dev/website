@@ -1,0 +1,63 @@
+---
+title: Setup
+description: Get ready to program with Dagrs in Rust. 
+---
+
+This tutorial will get you ready to program with Dagrs in Rust.
+
+## Getting Help
+
+At any point, if you get stuck, you can always get help on [Discord](https://discord.gg/4JzaNkRP). 
+Don't worry about asking "begginger" questions. We all start somewhere and 
+are happy to help.
+
+## Prerequisites
+Readers should already be familiar with [Rust](https://rust-lang.org). The [Rust book](https://doc.rust-lang.org/book/) is an excellent resource to get started with.
+
+While not required, some experience with writing networking code using the [Rust standard library](https://doc.rust-lang.org/std/) or another language can be helpful.
+
+## Install Dagrs as a Library
+
+With the help of Rust's package manager [cargo](https://doc.rust-lang.org/stable/cargo/), everything will be easy to install Dagrs as a Library.
+
+<Stepper>
+  <StepperItem title="Step 1: Checking Rust installation">
+    Before getting started, you should make sure that you have the Rust toolchain installed and ready to go. 
+    If you don't have it, the easiest way to install it is using [rustup](https://rustup.rs/).
+    
+    The most recent stable version of Rust is recommended.
+
+    To check that Rust is installed on your computer, run the following:
+
+    ```plaintext
+    rustc --version
+    ```
+
+    You should see output like `rustc 1.81.0 (eeb90cda1 2024-09-04)`.
+  </StepperItem>
+
+  <StepperItem title="Step 2: Creating a Project with Cargo">
+    Let’s create a new Rust project named `dagrs_setup` using Cargo:
+
+    ```plaintext
+    cargo new dagrs_setup
+    cd dagrs_setup
+    ```
+  </StepperItem>
+
+  <StepperItem title="Step 3: Install Dagrs as dependency">
+    Run the following Cargo command in your project directory:
+
+    ```plaintext
+    cargo add dagrs
+    ```
+    Or add the following line to your Cargo.toml:
+    
+    ```plaintext
+    dagrs = "0.2.0"
+    ```
+  </StepperItem>
+</Stepper>
+
+## Ready to go 
+That's it, everything is ready to go.
