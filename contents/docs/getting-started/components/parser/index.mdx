@@ -1,0 +1,34 @@
+---
+title: Parser
+description: More convenient ways to define nodes and build the graph.
+---
+
+## Auto implementation for Node trait
+
+Implementing the `Node` trait for tons of custom types is a bit of a waste of time.
+for example you need to implement the `id` method for all of them, which just return 
+a `NodeId` but you have to write such code over and over again.
+
+Dagrs provides the [procedural macro](https://doc.rust-lang.org/book/ch19-06-macros.html#procedural-macros-for-generating-code-from-attributes) 
+`auto_node` to simplify implementing the `Node` trait for custom types. As the following example
+goes, macro `auto_node` will add neccery fields to your custom type, and implement the
+`Node` trait for this type.
+
+```rust showLineNumbers
+use dagrs::{auto_node}
+
+#[auto_node]
+struct MyNode {/*Put customized fields here.*/}
+
+#[auto_node]
+struct MyNodeGeneric<T, 'a> {
+    my_field: Vec<T>,
+    my_name: &'a str,
+}
+
+#[auto_node]
+struct MyUnitNode;
+```
+<Note type="note" title="Note">
+  The macro `auto_node` currently doen't work on [tuple structs](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#using-tuple-structs-without-named-fields-to-create-different-types).
+</Note>
