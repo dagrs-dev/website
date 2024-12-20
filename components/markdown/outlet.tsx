@@ -1,9 +1,22 @@
-import { BaseMdxFrontmatter, getAllChilds } from "@/lib/markdown";
+import { BaseMdxFrontmatter, getAllChilds, getAllExampleChilds } from "@/lib/markdown";
 import Link from "next/link";
 
 export default async function Outlet({ path }: { path: string }) {
   if (!path) throw new Error("path not provided");
   const output = await getAllChilds(path);
+
+  return (
+    <div className="grid md:grid-cols-2 gap-5">
+      {output.map((child) => (
+        <ChildCard {...child} key={child.title} />
+      ))}
+    </div>
+  );
+}
+
+export async function ExampleOutlet({ path }: { path: string }) {
+  if (!path) throw new Error("path not provided");
+  const output = await getAllExampleChilds(path);
 
   return (
     <div className="grid md:grid-cols-2 gap-5">

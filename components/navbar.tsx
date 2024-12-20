@@ -6,7 +6,7 @@ import { buttonVariants } from "./ui/button";
 import Search from "./search";
 import Anchor from "./anchor";
 import { SheetLeftbar } from "./leftbar";
-import { page_routes } from "@/lib/routes-config";
+import { page_routes, example_page_routes } from "@/lib/routes-config";
 import { SheetClose } from "@/components/ui/sheet";
 
 export const NAVLINKS = [
@@ -20,7 +20,7 @@ export const NAVLINKS = [
   },
   {
     title: "Examples",
-    href: "#",
+    href: `/examples${example_page_routes[0].href}`,
   },
   {
     title: "Community",

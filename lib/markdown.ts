@@ -6,7 +6,7 @@ import rehypePrism from "rehype-prism-plus";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import rehypeCodeTitles from "rehype-code-titles";
-import { page_routes, ROUTES } from "./routes-config";
+import { page_routes, example_page_routes, ROUTES, EXAMPLE_ROUTES } from "./routes-config";
 import { visit } from "unist-util-visit";
 import matter from "gray-matter";
 
@@ -73,8 +73,38 @@ export async function getDocsForSlug(slug: string) {
   }
 }
 
+export async function getExamplsForSlug(slug: string) {
+  try {
+    const contentPath = getExamplesContentPath(slug);
+    const rawMdx = await fs.readFile(contentPath, "utf-8");
+    return await parseMdx<BaseMdxFrontmatter>(rawMdx);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export async function getDocsTocs(slug: string) {
   const contentPath = getDocsContentPath(slug);
+  const rawMdx = await fs.readFile(contentPath, "utf-8");
+  // captures between ## - #### can modify accordingly
+  const headingsRegex = /^(#{2,4})\s(.+)$/gm;
+  let match;
+  const extractedHeadings = [];
+  while ((match = headingsRegex.exec(rawMdx)) !== null) {
+    const headingLevel = match[1].length;
+    const headingText = match[2].trim();
+    const slug = sluggify(headingText);
+    extractedHeadings.push({
+      level: headingLevel,
+      text: headingText,
+      href: `#${slug}`,
+    });
+  }
+  return extractedHeadings;
+}
+
+export async function getExamplesTocs(slug: string) {
+  const contentPath = getExamplesContentPath(slug);
   const rawMdx = await fs.readFile(contentPath, "utf-8");
   // captures between ## - #### can modify accordingly
   const headingsRegex = /^(#{2,4})\s(.+)$/gm;
@@ -101,6 +131,14 @@ export function getPreviousNext(path: string) {
   };
 }
 
+export function getExamplePrevoiusNext(path: string) {
+  const index = example_page_routes.findIndex(({ href }) => href == `/${path}`);
+  return {
+    prev: example_page_routes[index - 1],
+    next: example_page_routes[index + 1],
+  };
+}
+
 function sluggify(text: string) {
   const slug = text.toLowerCase().replace(/\s+/g, "-");
   return slug.replace(/[^a-z0-9-]/g, "");
@@ -108,6 +146,10 @@ function sluggify(text: string) {
 
 function getDocsContentPath(slug: string) {
   return path.join(process.cwd(), "/contents/docs/", `${slug}/index.mdx`);
+}
+
+function getExamplesContentPath(slug: string) {
+  return path.join(process.cwd(), "/contents/examples/", `${slug}/index.mdx`);
 }
 
 function justGetFrontmatterFromMD<Frontmatter>(rawMd: string): Frontmatter {
@@ -145,6 +187,37 @@ export async function getAllChilds(pathString: string) {
   );
 }
 
+
+export async function getAllExampleChilds(pathString: string) {
+  const items = pathString.split("/").filter((it) => it != "");
+  let page_routes_copy = EXAMPLE_ROUTES;
+
+  let prevHref = "";
+  for (const it of items) {
+    const found = page_routes_copy.find((innerIt) => innerIt.href == `/${it}`);
+    if (!found) break;
+    prevHref += found.href;
+    page_routes_copy = found.items ?? [];
+  }
+  if (!prevHref) return [];
+
+  return await Promise.all(
+    page_routes_copy.map(async (it) => {
+      const totalPath = path.join(
+        process.cwd(),
+        "/contents/docs/",
+        prevHref,
+        it.href,
+        "index.mdx",
+      );
+      const raw = await fs.readFile(totalPath, "utf-8");
+      return {
+        ...justGetFrontmatterFromMD<BaseMdxFrontmatter>(raw),
+        href: `/docs${prevHref}${it.href}`,
+      };
+    }),
+  );
+}
 // for copying the code in pre
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const preProcess = () => (tree: any) => {

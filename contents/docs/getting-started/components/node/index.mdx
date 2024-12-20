@@ -98,17 +98,20 @@ Don't worry if the `DefaultNode` can't satisfy your need.
 You are free to implement a customized `Node` like the following example:
 
 ```rust showLineNumbers 
-use dagrs::{Node, NodeId, NodeName, EnvVar, Output, InChannels, OutChannels};
+use std::sync::Arc;
 
-struct HelloNode {
+use dagrs::{Content, EnvVar, InChannels, Node, NodeId, NodeName, OutChannels, Output};
+
+struct MessageNode {
     id: NodeId,
     name: NodeName,
     in_channels: InChannels,
     out_channels: OutChannels,
     /*Put your custom fields here.*/
-};
+    message: String,
+}
 
-impl Node for HelloNode {
+impl Node for MessageNode {
     fn id(&self) -> NodeId {
         self.id
     }
@@ -125,14 +128,13 @@ impl Node for HelloNode {
         &mut self.out_channels
     }
 
-    fn run(&mut self, env: Arc<EnvVar>) -> Output {
-        println!("Hello World");
-        Output::Out(None)
+    fn run(&mut self, _: Arc<EnvVar>) -> Output {
+        Output::Out(Some(Content::new(self.message.clone())))
     }
 }
 ```
 
-The `HelloNode` above simply prints "Hello World" to stdout when run. If needed,
+The `MessageNode` above simply returns its field `message` when run. If needed,
 the execution logic of this node can also be replaced with an `Action`, just like the 
 `DefaultNode`.
 
