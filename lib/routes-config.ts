@@ -36,6 +36,14 @@ export const ROUTES: EachRoute[] = [
   },
 ];
 
+export const EXAMPLE_ROUTES : EachRoute[] = [
+  { title: "Example - hello-dagrs", href: "/hello-dagrs" },
+  { title: "Example - custom-node", href: "/custom-node" },
+  { title: "Example - macro `auto-node`", href: "/macro-auto-node" },
+  { title: "Example - macro `dependencies!`", href: "/macro-auto-relay" },
+  { title: "Example - compute dag", href: "/compute-dag" },
+]
+
 type Page = { title: string; href: string };
 
 function getRecurrsiveAllLinks(node: EachRoute) {
@@ -51,3 +59,4 @@ function getRecurrsiveAllLinks(node: EachRoute) {
 }
 
 export const page_routes = ROUTES.map((it) => getRecurrsiveAllLinks(it)).flat();
+export const example_page_routes = EXAMPLE_ROUTES.map((it) => getRecurrsiveAllLinks(it)).flat();

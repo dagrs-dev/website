@@ -1,0 +1,63 @@
+---
+title: "Support Flow-based Programming Features in Dagrs"
+description: "Dagrs schedules the functions within the program through a DAG engine to complete the basic functions of the program, which is exactly the scenario where flow-based programming is suitable."
+date: 12-20-2024
+authors:
+  - avatar: "https://avatars.githubusercontent.com/u/76467?v=4"
+    handle: genedna
+    username: Quanyi Ma
+    handleUrl: "https://github.com/genedna"
+  - avatar: "https://avatars.githubusercontent.com/u/75103649?v=4"
+    handle: 191220029
+    username: Xiaolong Fu
+    handleUrl: "https://github.com/191220029"
+  - avatar: "https://avatars.githubusercontent.com/u/91040698?v=4"
+    handle: A-Mavericks
+    username: Xiyue Li
+    handleUrl: "https://github.com/A-Mavericks"
+cover: "/contents/blogs/fbp-features/waterflow.jpg"
+---
+
+## History of Flow-based Programming
+
+FBP([Flow-based Programming](https://jpaulm.github.io/fbp/index.html)) was invented by [J. Paul Morrison](https://en.wikipedia.org/wiki/J._Paul_Morrison) in the early 1970s. 
+It was initially implemented in software for a Canadian bank. Over the years, it’s had various names but has always maintained its core principles of reducing development time and managing processes efficiently.
+
+![Anime of Flow-based Programming](/contents/blogs/fbp-features/fbp_anims.gif "Anime of Flow-based Programming")
+
+FBP supports a variety of patterns like merge, split, duplicate and subroutine. These patterns allow us to define more complex workflows efficiently. 
+![Flow-based Programming Patterns](/contents/blogs/fbp-features/fbp-patterns.png "Flow-based Programming Patterns")
+
+Cyclic patterns are not currently within the scope of our schedule. We prefer to build a task dependency structure in the form of a hash tree.
+
+## Key characteristics of FBP 
+FBP treats applications as networks of 'black box' processes that communicate by sending and receiving data, referred to as Information Packets, over predefined connections. 
+It’s a component-oriented approach that fits well with modular software architecture.
+
+FBP is a special case of dataflow programming characterized by asynchronous, concurrent processes "under the covers", Information Packets with defined lifetimes, named ports, "bounded buffer" connections, and definition of connections external to the components.
+
+To sum up, the characteristics of FBP are as follows:
+
+- Encapsulated processes and information packets. 
+- The external definition of connections.
+- Asynchronism.
+- Information packets with unique ownership and lifetime.
+- Connections in FBP are bounded, with a finite capacity.
+- Reverse pressure.
+
+## Why FBP is suitable for Dagrs
+The purpose of Dagrs is to schedule user's functions to 
+complete tasks in order to help users achieve their specific goals. There 
+can be context switches between functions, and various conditional judgments 
+exist within the functions. If we simplify the relationship between these 
+functions, they form a directed acyclic graph, and ultimately generate output 
+results based on the input conditions of the program. So there has always been 
+a simple idea to use the DAG engine to schedule the functions within the program 
+to complete the basic functions of the program.
+
+The concept of FBP coincides with Dagrs' goals, and thus we have the story of our being here.
+
+## Current Plan of Dagrs
+
+We are currently introducing the concept of FBP and making the entire program provide only the most basic functions and releasing a minimal version
+before Chritsmas this year. You are welcomed to our [discord channel](https://discord.gg/4JzaNkRP) if you are willing to provide comments and suggestions for our development.
