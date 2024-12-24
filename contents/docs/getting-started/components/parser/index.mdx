@@ -32,3 +32,24 @@ struct MyUnitNode;
 <Note type="note" title="Note">
   The macro `auto_node` currently doen't work on [tuple structs](https://doc.rust-lang.org/book/ch05-01-defining-structs.html#using-tuple-structs-without-named-fields-to-create-different-types).
 </Note>
+
+## Auto implementation for build the graph
+
+Dagrs also provides an easy way to build a graph using the `dependencies!` macro. This eliminates the need to manually add nodes and edges one by one, saving time and making the process more straightforward. The macro allows you to define node dependencies directly in a concise and readable format.
+
+Here’s an example demonstrating how to use the `dependencies!` macro to construct a graph:
+
+```rust showLineNumbers
+use dagrs::dependencies;
+let s = MyNode::new(node_name, &mut node_table);
+let a = MyNode::new(node_name, &mut node_table);
+let b = MyNode::new(node_name, &mut node_table);
+let mut g = dependencies!(
+        s -> a b,
+        b -> a
+);
+```
+
+The nodes `s`, `a`, and `b` are created using the `MyNode` type, which automatically implements the `Node` trait via the `auto_node` macro. The `dependencies!` macro defines the relationships between nodes in a concise format, where `s -> a b` indicates that there is a channel from `s` to `a` and `b`, and `b -> a` specifies a channel from `b` to `a`. This macro simplifies graph construction by automatically generating the required structure with all specified nodes and their dependencies, avoiding repetitive and boilerplate code.
+
+The `g` variable represents the generated graph, which is automatically constructed by the `dependencies!` macro based on the defined node relationships. 
