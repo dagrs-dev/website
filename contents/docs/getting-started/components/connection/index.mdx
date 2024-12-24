@@ -120,24 +120,18 @@ Let's continue with the above example, where node `a` closes the channel's
 sender after sending the greeting:
 
 ```rust showLineNumbers {13}
-use dagrs::{Action, InChannels, OutChannels, EnvVar, Output};
-
 const NAME_OF_B: &str = "b";
-
-pub struct GreetingAction;
 #[async_trait]
-impl Action for GreetingAction {
-    async fn run(&self, _: &mut InChannels, out_channel: &OutChannels, env: Arc<EnvVar>) -> Output {
-        let greeting = Content::new("Hey there~").
+impl Node for MyNode {
+    // Other method implementations...
+    async fn run(&mut self, env: Arc<EnvVar>) -> Output {
+        // `action` sends the greeting to other nodes
+        let output = self.action.run(&mut self.input_channels(), &self.output_channels(), env.clone());
         let b_id = env.get_node_id(NAME_OF_B).unwrap();
-        out_channel.send_to(&b_id, greeting).unwrap();
-
-        out_channel.close(&b_id);
-        
-        Output::Out(None)
+        self.output_channels().close(&b_id);
+        output
     }
 }
-
 ```
 After `a` closes the sender, the key-value pair of 
 (`b`'s id, the closed sender) is removed from `a.out_channels`.

@@ -37,7 +37,9 @@ fn main() {
     assert_eq!(&s.id(), node_table.get(&node_name).unwrap());
     assert_eq!(&s.name(), &node_name);
 
-    let output = s.run(Arc::new(EnvVar::new(NodeTable::default())));
+    let output = tokio::runtime::Runtime::new()
+        .unwrap()
+        .block_on(async { s.run(Arc::new(EnvVar::new(NodeTable::default()))).await });
     match output {
         dagrs::Output::Out(content) => assert!(content.is_none()),
         _ => panic!(),
