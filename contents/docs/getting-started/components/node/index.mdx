@@ -8,6 +8,7 @@ user's task. `Node` is the basic scheduling unit of [`Graph`](./graph).
 
 ## Node's interfaces
 ```rust showLineNumbers 
+#[async_trait]
 pub trait Node: Send + Sync {
     /// id is the unique identifier of each node, it will be assigned 
     /// by the [`NodeTable`].
@@ -21,7 +22,7 @@ pub trait Node: Send + Sync {
     /// Output Channels of this node.
     fn output_channels(&mut self) -> &mut OutChannels;
     /// Execute a run of this node.
-    fn run(&mut self, env: Arc<EnvVar>) -> Output;
+    async fn run(&mut self, env: Arc<EnvVar>) -> Output;
 }
 ```
 
@@ -99,7 +100,7 @@ You are free to implement a customized `Node` like the following example:
 
 ```rust showLineNumbers 
 use std::sync::Arc;
-
+use async_trait::async_trait;
 use dagrs::{Content, EnvVar, InChannels, Node, NodeId, NodeName, OutChannels, Output};
 
 struct MessageNode {
@@ -111,6 +112,7 @@ struct MessageNode {
     message: String,
 }
 
+#[async_trait]
 impl Node for MessageNode {
     fn id(&self) -> NodeId {
         self.id
@@ -128,7 +130,7 @@ impl Node for MessageNode {
         &mut self.out_channels
     }
 
-    fn run(&mut self, _: Arc<EnvVar>) -> Output {
+    async fn run(&mut self, _: Arc<EnvVar>) -> Output {
         Output::Out(Some(Content::new(self.message.clone())))
     }
 }

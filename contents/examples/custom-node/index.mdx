@@ -6,6 +6,7 @@ description:  Creates a custom implementation of `Node` that returns a `String`,
 ```rust showLineNumbers
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use dagrs::{
     Content, EnvVar, Graph, InChannels, Node, NodeId, NodeName, NodeTable, OutChannels, Output,
 };
@@ -19,6 +20,7 @@ struct MessageNode {
     message: String,
 }
 
+#[async_trait]
 impl Node for MessageNode {
     fn id(&self) -> NodeId {
         self.id
@@ -36,7 +38,7 @@ impl Node for MessageNode {
         &mut self.out_channels
     }
 
-    fn run(&mut self, _: Arc<EnvVar>) -> Output {
+    async fn run(&mut self, _: Arc<EnvVar>) -> Output {
         Output::Out(Some(Content::new(self.message.clone())))
     }
 }
@@ -63,7 +65,7 @@ fn main() {
     // create a graph with this node and run
     let mut graph = Graph::new();
     graph.add_node(node);
-    graph.run();
+    graph.start();
 
     // verify the output of this node
     let outputs = graph.get_outputs();
