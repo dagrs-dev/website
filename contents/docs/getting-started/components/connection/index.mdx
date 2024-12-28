@@ -78,8 +78,8 @@ impl Action for GreetingAction {
 }
 ```
 
-The `send_to` method is asynchronouse. You can also use the method
-`blocking_send`, which is synchronouse.
+The `send_to` method is asynchronous. You can also use the method
+`blocking_send`, which is synchronous.
 
 ### Receive a information packet
 
@@ -105,17 +105,17 @@ impl Action for RecvGreetingAction {
     }
 }
 ```
-The `recv_from` method is asynchronouse. You can also use the method
-`blocking_recv_from`, which is synchronouse.
+The `recv_from` method is asynchronous. You can also use the method
+`blocking_recv_from`, which is synchronous.
 
-## Lifetime of the channel
+## Lifetime of a channel
 
 Channels are created when the graph is constructed and the corresponding 
 senders and receivers of these channels are assigned to nodes. 
 Since all good things must come to an end, you can close senders/receivers 
 manually, otherwise they will be closed automatically when the graph is deleted.
 
-### Close a sender
+### Closing a sender
 Let's continue with the above example, where node `a` closes the channel's 
 sender after sending the greeting:
 
@@ -136,7 +136,7 @@ impl Node for MyNode {
 After `a` closes the sender, the key-value pair of 
 (`b`'s id, the closed sender) is removed from `a.out_channels`.
 
-### Close a receiver
+### Closing a receiver
 
 When node `b` receives the greeting, it also closes the receiver:
 ```rust showLineNumbers {12}
