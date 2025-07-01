@@ -12,20 +12,25 @@ description: Record the dependency relationships and operational results of node
 ```rust showLineNumbers 
 pub struct Graph {
     /// Define the Net struct that holds all nodes
-    nodes: HashMap<NodeId, Arc<Mutex<dyn Node>>>,
+    pub(crate) nodes: HashMap<NodeId, Arc<Mutex<dyn Node>>>,
     /// Store a task's running result.Execution results will be read
     /// and written asynchronously by several threads.
-    execute_states: HashMap<NodeId, Arc<ExecState>>,
+    pub(crate) execute_states: HashMap<NodeId, Arc<ExecState>>,
     /// Count all the nodes
-    node_count: usize,
+    pub(crate) node_count: usize,
     /// Global environment variables for this Net job.
     /// It should be set before the Net job runs.
-    env: Arc<EnvVar>,
+    pub(crate) env: Arc<EnvVar>,
     /// Mark whether the net task can continue to execute.
-    /// When an error occurs during the execution of any task, This flag will still be 			set to true
-    is_active: Arc<AtomicBool>,
+    /// When an error occurs during the execution of any task, This flag will still be set to true
+    pub(crate) is_active: Arc<AtomicBool>,
     /// Node's in_degree, used for check loop
-    in_degree: HashMap<NodeId, usize>,
+    pub(crate) in_degree: HashMap<NodeId, usize>,
+    /// Stores the blocks of nodes divided by conditional nodes.
+    /// Each block is a HashSet of NodeIds that represents a group of nodes that will be executed together.
+    pub(crate) blocks: Vec<HashSet<NodeId>>,
+    /// Abstract representation of the graph structure, used for cycle detection
+    pub(crate) abstract_graph: AbstractGraph,
 }
 ```
 

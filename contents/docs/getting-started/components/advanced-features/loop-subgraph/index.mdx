@@ -1,0 +1,29 @@
+---
+title: Loop Subgraph
+description: Looped nodes in Graph.
+---
+
+LoopSubgraph is a special node type designed to represent a subgraph of nodes that are executed 
+in a loop structure within a larger computational graph. Instead of being executed directly, 
+a LoopSubgraph acts as a container for a set of inner nodes, which are managed and executed repeatedly 
+by the parent graph according to the loop logic.
+
+The LoopSubgraph is included in the main graph as a single node, but internally contains
+multiple nodes that will be executed repeatedly. The connection and execution of the loop is controlled
+by the parent graph rather than the LoopSubgraph itself.
+
+```rust showLineNumbers {}
+pub struct LoopSubgraph {
+    id: NodeId,
+    name: NodeName,
+    in_channels: InChannels,
+    out_channels: OutChannels,
+    // Inner nodes, contains the nodes that need to be executed in a loop
+    inner_nodes: Vec<Arc<Mutex<dyn Node>>>,
+}
+```
+
+`LoopSubgraph` is implemented by `Node` trait, so `Graph` will treat `LoopSubgraph` as a single node.
+Users need to add nodes that need to form a loop structure to LoopSubgraph, and then add it to `Graph`.
+
+Use cases of the `LoopSubgraph` can be found in [example - loop subgraph](../../../../examples/loop-subgraph).

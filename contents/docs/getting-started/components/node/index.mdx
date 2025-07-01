@@ -8,12 +8,19 @@ user's task. `Node` is the basic scheduling unit of [`Graph`](./graph).
 
 ## Node's interfaces
 ```rust showLineNumbers 
+
+///# The [`Node`] trait
+///
+/// Nodes are the basic scheduling units of Graph. They can be identified by
+/// a globally assigned [`NodeId`] and a user-provided name.
+///
+/// Nodes can communicate with others asynchronously through [`InChannels`] and [`OutChannels`].
+///
+/// In addition to the above properties, users can also customize some other attributes.
 #[async_trait]
 pub trait Node: Send + Sync {
-    /// id is the unique identifier of each node, it will be assigned 
-    /// by the [`NodeTable`].
-    /// when creating a new node, you can find this node through 
-    /// this identifier.
+    /// id is the unique identifier of each node, it will be assigned by the [`NodeTable`]
+    /// when creating a new node, you can find this node through this identifier.
     fn id(&self) -> NodeId;
     /// The node's name.
     fn name(&self) -> NodeName;
@@ -23,6 +30,31 @@ pub trait Node: Send + Sync {
     fn output_channels(&mut self) -> &mut OutChannels;
     /// Execute a run of this node.
     async fn run(&mut self, env: Arc<EnvVar>) -> Output;
+    /// Return true if this node is conditional node. By default, it returns false.
+    fn is_condition(&self) -> bool {
+        false
+    }
+    /// Returns the list of nodes that are part of this node's loop structure, if any.
+    ///
+    /// This method is used to identify nodes that are part of a loop-like structure, such as a loop subgraph.
+    /// When this method returns Some(nodes), the loop detection check will skip checking these nodes for cycles.
+    ///
+    /// Returns None by default, indicating this is not a loop-containing node.
+    fn loop_structure(&self) -> Option<Vec<Arc<Mutex<dyn Node>>>> {
+        None
+    }
+
+    /// Returns true if this node has TypedContent input.
+    /// By default, it returns false.
+    fn has_typed_input(&self) -> bool {
+        false
+    }
+
+    /// Returns true if this node has TypedContent output.
+    /// By default, it returns false.
+    fn has_typed_output(&self) -> bool {
+        false
+    }
 }
 ```
 

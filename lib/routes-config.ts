@@ -30,6 +30,28 @@ export const ROUTES: EachRoute[] = [
           { title: "Connection", href: "/connection" },
           { title: "Graph", href: "/graph" },
           { title: "Parser", href: "/parser" },
+          { 
+            title: "Advanced features", 
+            href: "/advanced-features",
+            items: [
+              {
+                title: "Conditional Execution",
+                href: "/conditional-execution",
+              },
+              {
+                title: "Loop Subgraph",
+                href: "/loop-subgraph",
+              },
+              {
+                title: "Send & Recv without id", 
+                href: "/send-recv-without-id",
+              },
+              {
+                title: "Typed Action", 
+                href: "/typed-action",
+              },
+            ],
+          },
         ],
       },
     ],
@@ -42,6 +64,9 @@ export const EXAMPLE_ROUTES : EachRoute[] = [
   { title: "Example - macro `auto-node`", href: "/macro-auto-node" },
   { title: "Example - macro `dependencies!`", href: "/macro-auto-relay" },
   { title: "Example - compute dag", href: "/compute-dag" },
+  { title: "Example - Conditional Execution", href: "/conditional-execution" },
+  { title: "Example - Loop Subgraph", href: "/loop-subgraph" },
+  { title: "Example - receive any & broadcast & typed action", href: "/receive-any-typed-action" },
 ]
 
 type Page = { title: string; href: string };
