@@ -1,0 +1,77 @@
+---
+title: Send & Recv without id
+description: Send or receive packets without caring about the receiver or sender.
+---
+
+In cases where you want to send or receive packets without caring about the sender or receiver, 
+using `send_to` and `recv_from` is not a good idea. Therefore, we provide new methods for `InChannels` 
+and `OutChannels` to handle this situation.
+
+## Receive packets without sender's id
+
+```rust
+impl InChannels {
+    pub async fn recv_any(&mut self) -> Result<(NodeId, Content), RecvErr> {
+        let mut futures = Vec::new();
+        let ids: Vec<NodeId> = self.keys();
+
+        for id in ids {
+            let channel = self.get(&id).ok_or(RecvErr::NoSuchChannel)?;
+            let fut = Box::pin(async move {
+                let content = channel.lock().await.recv().await?;
+                Ok::<_, RecvErr>((id, content))
+            });
+            futures.push(fut);
+        }
+
+        if futures.is_empty() {
+            return Err(RecvErr::NoSuchChannel);
+        }
+
+        match select_ok(futures).await {
+            Ok((result, _)) => Ok(result),
+            Err(_) => Err(RecvErr::Closed),
+        }
+    }
+
+    // other methods ...
+}
+```
+
+`recv_any` receives data from any available channel and returns both the sender's ID and the content.
+This method will wait until any channel has data available.
+
+
+## Send packets without receiver's id
+
+```rust
+impl OutChannels {
+    pub async fn broadcast(&self, content: Content) -> Vec<Result<(), SendErr>> {
+        let futures = self
+            .0
+            .iter()
+            .map(|(_, c)| async { c.lock().await.send(content.clone()).await });
+
+        join_all(futures).await
+    }
+
+    // other methods ...
+}
+
+```
+Here we can use `broadcast` to send a packet to all the receivers.
+
+Or we can call "get_receiver_ids" to get all available receiver node IDs and select one or some of them to send packets.
+
+```rust
+impl OutChannels {
+    /// Returns a list of all available receiver node IDs.
+    pub fn get_receiver_ids(&self) -> Vec<NodeId> {
+        self.0.keys().copied().collect()
+    }
+
+    // other methods ...
+}
+```
+
+Use cases of the above methods can be found in [example - receive any & broadcast & typed-action](../../../../examples/receive-any-typed-action).
