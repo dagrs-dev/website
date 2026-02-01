@@ -1,0 +1,38 @@
+---
+title: Loop Node
+description: Execute nodes in a loop based on conditions.
+---
+
+`LoopNode` is a control flow node that allows for iterative execution of a part of the graph. Unlike `LoopSubgraph` which encapsulates the loop within a single node, `LoopNode` acts as a controller that jumps back to a target node based on a condition.
+
+## LoopCondition
+
+To use `LoopNode`, you need to implement the `LoopCondition` trait. This trait determines whether the loop should continue for another iteration.
+
+```rust
+pub trait LoopCondition: Send + Sync {
+    /// Determines whether the loop should continue for another iteration.
+    fn should_continue(&mut self, input: &InChannels, out: &OutChannels, env: Arc<EnvVar>) -> bool;
+
+    /// Reset the condition state.
+    fn reset(&mut self) {}
+}
+```
+
+## LoopNode Structure
+
+`LoopNode` holds the condition and the target node ID (the start of the loop).
+
+```rust
+pub struct LoopNode {
+    id: NodeId,
+    name: NodeName,
+    target_node: NodeId, // The node to jump back to
+    condition: Mutex<Box<dyn LoopCondition>>,
+    // ...
+}
+```
+
+When `should_continue` returns `true`, the execution flow jumps back to `target_node`. Otherwise, it proceeds to the next node.
+
+Use cases of the `LoopNode` can be found in [example - Loop Node](../../../../examples/loop-node).

@@ -65,7 +65,12 @@ export const EXAMPLE_ROUTES : EachRoute[] = [
   { title: "Example - macro `dependencies!`", href: "/macro-auto-relay" },
   { title: "Example - compute dag", href: "/compute-dag" },
   { title: "Example - Conditional Execution", href: "/conditional-execution" },
+  { title: "Example - Dynamic Router", href: "/dynamic-router" },
   { title: "Example - Loop Subgraph", href: "/loop-subgraph" },
+  { title: "Example - Loop Node", href: "/loop-node" },
+  { title: "Example - Checkpoint", href: "/checkpoint" },
+  { title: "Example - Execution Hooks", href: "/execution-hooks" },
+  { title: "Example - State Subscription", href: "/state-subscription" },
   { title: "Example - receive any & broadcast & typed action", href: "/receive-any-typed-action" },
 ]
 

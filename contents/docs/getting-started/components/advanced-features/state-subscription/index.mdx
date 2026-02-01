@@ -1,0 +1,39 @@
+---
+title: State Subscription
+description: Real-time monitoring of graph execution events.
+---
+
+Dagrs provides a state subscription mechanism that allows you to listen to events emitted during the graph execution. This is useful for building monitoring dashboards or logging systems.
+
+## GraphEvent
+
+The `GraphEvent` enum covers various lifecycle events:
+
+- `NodeStart`
+- `NodeSuccess`
+- `NodeFailed`
+- `NodeSkipped`
+- `GraphStarted`
+- `GraphFinished`
+- `BranchSelected`
+
+## Subscribing
+
+You can obtain a receiver channel from the graph to listen for events.
+
+```rust
+let mut graph = Graph::new();
+// ... setup graph ...
+
+let mut receiver = graph.subscribe();
+
+tokio::spawn(async move {
+    while let Ok(event) = receiver.recv().await {
+        println!("Received event: {:?}", event);
+    }
+});
+
+graph.start().unwrap();
+```
+
+Use cases of the State Subscription can be found in [example - State Subscription](../../../../examples/state-subscription).

@@ -1,0 +1,57 @@
+---
+title: Execution Hooks
+description: Example of using Execution Hooks.
+---
+
+This example demonstrates how to implement and register a custom `ExecutionHook`.
+
+```rust showLineNumbers {}
+use std::sync::Arc;
+use async_trait::async_trait;
+use dagrs::{
+    EnvVar, ExecutionHook, Graph, GraphError, Node, Output, DefaultNode, NodeTable, Action, InChannels, OutChannels
+};
+
+struct LoggingHook;
+
+#[async_trait]
+impl ExecutionHook for LoggingHook {
+    async fn on_node_start(&self, node: &dyn Node, _env: &Arc<EnvVar>) {
+        println!("[Hook] Node started: {}", node.name());
+    }
+
+    async fn on_node_success(&self, node: &dyn Node, _output: &Output, _env: &Arc<EnvVar>) {
+        println!("[Hook] Node succeeded: {}", node.name());
+    }
+
+    async fn on_node_fail(&self, node: &dyn Node, error: &GraphError, _env: &Arc<EnvVar>) {
+        println!("[Hook] Node failed: {} with error: {:?}", node.name(), error);
+    }
+
+    async fn on_retry(&self, node: &dyn Node, error: &GraphError, _env: &Arc<EnvVar>) {
+        println!("[Hook] Retrying node: {} due to error: {:?}", node.name(), error);
+    }
+}
+
+struct NoOpAction;
+#[async_trait]
+impl Action for NoOpAction {
+    async fn run(&self, _: &mut InChannels, _: &mut OutChannels, _: Arc<EnvVar>) -> Output {
+        Output::empty()
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let mut table = NodeTable::new();
+    let mut graph = Graph::new();
+
+    let node = DefaultNode::with_action("MyNode".to_string(), NoOpAction, &mut table);
+    graph.add_node(node);
+
+    // Register the hook
+    graph.add_hook(LoggingHook);
+
+    graph.start().unwrap();
+}
+```
