@@ -1,0 +1,36 @@
+---
+title: Execution Hooks
+description: Inject custom logic into the execution lifecycle.
+---
+
+`ExecutionHook` allows you to intercept key events during the graph execution, such as before a node starts, after it finishes, or when it fails/retries.
+
+## ExecutionHook Trait
+
+```rust
+#[async_trait]
+pub trait ExecutionHook: Send + Sync {
+    /// Called before a node starts execution
+    async fn on_node_start(&self, node: &dyn Node, env: &Arc<EnvVar>);
+
+    /// Called after a node successfully completes
+    async fn on_node_success(&self, node: &dyn Node, output: &Output, env: &Arc<EnvVar>);
+
+    /// Called when a node fails
+    async fn on_node_fail(&self, node: &dyn Node, error: &GraphError, env: &Arc<EnvVar>);
+    
+    /// Called when a node is about to retry
+    async fn on_retry(&self, node: &dyn Node, error: &GraphError, env: &Arc<EnvVar>);
+}
+```
+
+## Registering Hooks
+
+You can register hooks when creating the graph or by adding them later.
+
+```rust
+let mut graph = Graph::new();
+graph.add_hook(MyCustomHook);
+```
+
+Use cases of the Execution Hooks can be found in [example - Execution Hooks](../../../../examples/execution-hooks).

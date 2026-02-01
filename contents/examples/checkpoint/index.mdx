@@ -1,0 +1,31 @@
+---
+title: Checkpoint
+description: Example of using Checkpoints to save and restore state.
+---
+
+This example shows how to configure a checkpoint store.
+
+```rust showLineNumbers {}
+use dagrs::{Graph, FileCheckpointStore};
+
+#[tokio::main]
+async fn main() {
+    let mut graph = Graph::new();
+    
+    // ... Add nodes and edges ...
+
+    // Configure the checkpoint store
+    // This will save checkpoints to the "./checkpoints" directory
+    let store = FileCheckpointStore::new("./checkpoints");
+    graph.set_checkpoint_store(Box::new(store));
+
+    // When start() is called, dagrs will:
+    // 1. Check if a valid checkpoint exists.
+    // 2. If yes, restore state (node statuses, env vars, loop counters).
+    // 3. Resume execution from where it left off.
+    match graph.start() {
+        Ok(_) => println!("Graph finished successfully"),
+        Err(e) => println!("Graph failed: {:?}", e),
+    }
+}
+```

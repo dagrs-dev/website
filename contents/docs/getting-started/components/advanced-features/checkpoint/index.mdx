@@ -1,0 +1,40 @@
+---
+title: Checkpoint
+description: Persist and restore graph execution state.
+---
+
+The Checkpoint mechanism allows you to save the state of a graph execution and restore it later. This is useful for long-running tasks or for recovering from failures.
+
+## Checkpoint Structure
+
+A `Checkpoint` contains the state of all nodes, environment variables, and other execution context.
+
+```rust
+pub struct Checkpoint {
+    pub graph_id: String,
+    pub node_states: HashMap<NodeId, NodeState>,
+    pub env: EnvVar,
+    // ...
+}
+```
+
+## Usage
+
+You can use `FileCheckpointStore` or implement your own storage backend.
+
+```rust
+// Enable checkpointing when running the graph
+let mut graph = Graph::new();
+// ... setup graph ...
+
+// Configure checkpoint
+let store = FileCheckpointStore::new("checkpoints");
+graph.set_checkpoint_store(Box::new(store));
+
+// Run graph
+graph.start().unwrap();
+```
+
+When a graph is restarted with a checkpoint store, it can attempt to restore from the latest checkpoint.
+
+Use cases of the Checkpoint can be found in [example - Checkpoint](../../../../examples/checkpoint).

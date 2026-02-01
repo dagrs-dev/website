@@ -1,0 +1,91 @@
+---
+title: Loop Node
+description: Example of using LoopNode for control flow loops.
+---
+
+This example demonstrates how to use `LoopNode` to create a loop that runs for a specific number of iterations.
+
+```rust showLineNumbers {}
+use std::sync::{Arc, Mutex};
+use async_trait::async_trait;
+use dagrs::{
+    Action, DefaultNode, EnvVar, Graph, InChannels, LoopCondition, LoopNode, Node, NodeTable,
+    OutChannels, Output,
+};
+
+struct CountLoopCondition {
+    max_iterations: usize,
+    current_iteration: usize,
+}
+
+impl CountLoopCondition {
+    pub fn new(max: usize) -> Self {
+        Self {
+            max_iterations: max,
+            current_iteration: 0,
+        }
+    }
+}
+
+impl LoopCondition for CountLoopCondition {
+    fn should_continue(
+        &mut self,
+        _input: &InChannels,
+        _out: &OutChannels,
+        _env: Arc<EnvVar>,
+    ) -> bool {
+        if self.current_iteration < self.max_iterations {
+            self.current_iteration += 1;
+            true
+        } else {
+            false
+        }
+    }
+
+    fn reset(&mut self) {
+        self.current_iteration = 0;
+    }
+}
+
+struct PrintAction(String);
+
+#[async_trait]
+impl Action for PrintAction {
+    async fn run(&self, _: &mut InChannels, _: &mut OutChannels, _: Arc<EnvVar>) -> Output {
+        println!("{}", self.0);
+        Output::empty()
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let mut table = NodeTable::new();
+    let mut graph = Graph::new();
+
+    // Create a node that will be executed in the loop
+    let node_a = DefaultNode::with_action(
+        "Node A".to_string(), 
+        PrintAction("Executing Node A".to_string()), 
+        &mut table
+    );
+    let id_a = node_a.id();
+
+    // Create the LoopNode
+    // It targets 'node_a', meaning when the condition is true, it jumps back to 'node_a'
+    let loop_node = LoopNode::new(
+        "Loop Controller".to_string(),
+        id_a,
+        CountLoopCondition::new(3), // Loop 3 times
+        &mut table,
+    );
+    let id_loop = loop_node.id();
+
+    graph.add_node(node_a);
+    graph.add_node(loop_node);
+
+    // Set dependency: Node A -> Loop Node
+    graph.add_edge(id_a, vec![id_loop]);
+
+    graph.start().unwrap();
+}
+```

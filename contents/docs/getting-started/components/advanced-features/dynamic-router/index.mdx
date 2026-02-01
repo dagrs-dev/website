@@ -1,0 +1,32 @@
+---
+title: Dynamic Router
+description: Dynamically select execution branches at runtime.
+---
+
+`RouterNode` allows for dynamic branching in the graph execution. It uses a user-defined `Router` to decide which downstream nodes should be executed.
+
+## Router Trait
+
+The `Router` trait defines the routing logic.
+
+```rust
+#[async_trait]
+pub trait Router: Send + Sync {
+    /// Determine the next nodes to execute.
+    /// Returns a vector of NodeIds that should be activated.
+    async fn route(
+        &self,
+        input: &mut InChannels,
+        output: &OutChannels,
+        env: Arc<EnvVar>,
+    ) -> Vec<usize>;
+}
+```
+
+## Branch Pruning
+
+One of the key features of `RouterNode` is **Branch Pruning**. Any downstream node connected to the router that is **not** returned by the `route` method will be skipped (pruned), along with all of its descendants (unless those descendants are also reachable from another active path).
+
+This allows for efficient execution of complex workflows where only a subset of tasks needs to run based on runtime data.
+
+Use cases of the `RouterNode` can be found in [example - Dynamic Router](../../../../examples/dynamic-router).

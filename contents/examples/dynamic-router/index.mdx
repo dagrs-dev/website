@@ -1,0 +1,84 @@
+---
+title: Dynamic Router
+description: Example of using RouterNode for dynamic branching.
+---
+
+This example demonstrates how to use `RouterNode` to dynamically select which path to execute.
+
+```rust showLineNumbers {}
+use std::sync::Arc;
+use async_trait::async_trait;
+use dagrs::{
+    Action, DefaultNode, EnvVar, Graph, InChannels, Node, NodeTable, OutChannels, Output,
+    Router, RouterNode,
+};
+
+struct MyRouter {
+    select_left: bool,
+    left_node_id: usize,
+    right_node_id: usize,
+}
+
+#[async_trait]
+impl Router for MyRouter {
+    async fn route(
+        &self,
+        _: &mut InChannels,
+        _: &OutChannels,
+        _: Arc<EnvVar>,
+    ) -> Vec<usize> {
+        if self.select_left {
+            vec![self.left_node_id]
+        } else {
+            vec![self.right_node_id]
+        }
+    }
+}
+
+struct PrintAction(String);
+
+#[async_trait]
+impl Action for PrintAction {
+    async fn run(&self, _: &mut InChannels, _: &mut OutChannels, _: Arc<EnvVar>) -> Output {
+        println!("{}", self.0);
+        Output::empty()
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let mut table = NodeTable::new();
+    let mut graph = Graph::new();
+
+    // Left path
+    let left = DefaultNode::with_action("Left".to_string(), PrintAction("Left Path".into()), &mut table);
+    let id_left = left.id();
+
+    // Right path
+    let right = DefaultNode::with_action("Right".to_string(), PrintAction("Right Path".into()), &mut table);
+    let id_right = right.id();
+
+    // Router
+    let router = RouterNode::new(
+        "Router".to_string(),
+        MyRouter {
+            select_left: true, // Select left path
+            left_node_id: id_left.as_usize(),
+            right_node_id: id_right.as_usize(),
+        },
+        &mut table,
+    );
+    let id_router = router.id();
+
+    graph.add_node(left);
+    graph.add_node(right);
+    graph.add_node(router);
+
+    // Connect Router -> Left, Router -> Right
+    graph.add_edge(id_router, vec![id_left, id_right]);
+
+    println!("Starting graph execution...");
+    graph.start().unwrap();
+    // Output should contain "Left Path" but NOT "Right Path"
+}
+```
